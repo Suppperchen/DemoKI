@@ -1,0 +1,4 @@
+
+interface KIImage {
+    KIImage: string;
+}

@@ -8,45 +8,46 @@ import {HttpClient} from "@angular/common/http";
 })
 export class EyeComponent {
 
-  fileName = '';
+
   imageBase64 = '';
+  typeList = ['image/png','image/tiff','image/gif','image/jpeg'];
+  warningMessage = '';
+  showKIImage = 'data:image/png;base64,';
+  show = false;
 
     constructor(private http: HttpClient) {}
 
+
     onFileSelected(event :any) {
 
-        const file:File = event.target.files[0];
+      let file:File = event.target.files[0];
+      if (file && this.typeList.includes(file.type)) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          this.imageBase64 = reader.result as string;
+          console.log(this.imageBase64);
+          this.warningMessage = '';
+        };
+      }else {
+        this.warningMessage = `the type "${file.type}" may not correct.`
+        this.imageBase64 = '';
+      }
+    }
+    sendImage():void{
+      if(this.imageBase64!=''){
+        let index = this.imageBase64.indexOf(',');
+        const basestring = this.imageBase64.substring(index+1);
+        var dataJson = {"image":basestring}
+        const upload$ = this.http.post<any>("http://localhost:5000/post-retinal-vessel", dataJson);
+        upload$.subscribe(res =>{
+          this.showKIImage = this.showKIImage+res.KIImage;
+          this.show = true;
 
-        if (file) {
-
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => {
-              const basestring = reader.result as string
-              this.imageBase64 = reader.result as string
-              console.log(basestring);
-              console.log(basestring.length);
-
-              let index = basestring.indexOf(',');
-              console.log(index);
-              console.log(basestring.at(index+1))
-              console.log(basestring.substring(0,index+1))
-              // const upload$ = this.http.post("http://localhost:5000/post-retinal-vessel", basestring);
-              //
-              // upload$.subscribe(answer =>{
-              //   this.answerFromFlask = answer.toString();
-              //   console.log(answer);
-              //   console.log(this.answerFromFlask);});
-    };
-            //upload$.subscribe();
-        }
+        })
+      }
     }
 
-    toBase64 = (file: File) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
+
 
 }
