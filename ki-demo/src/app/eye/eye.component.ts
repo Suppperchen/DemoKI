@@ -26,13 +26,14 @@ export class EyeComponent {
         reader.readAsDataURL(file);
         reader.onload = () => {
           this.imageBase64 = reader.result as string;
-          console.log(this.imageBase64);
+          //console.log(this.imageBase64);
           this.warningMessage = '';
         };
       }else {
         this.warningMessage = `the type "${file.type}" may not correct.`
         this.imageBase64 = '';
       }
+      this.show = false;
     }
     sendImage():void{
       if(this.imageBase64!=''){
@@ -41,7 +42,7 @@ export class EyeComponent {
         var dataJson = {"image":basestring}
         const upload$ = this.http.post<any>("http://localhost:5000/post-retinal-vessel", dataJson);
         upload$.subscribe(res =>{
-          this.showKIImage = this.showKIImage+res.KIImage;
+          this.showKIImage = 'data:image/png;base64,'+res.KIImage;
           this.show = true;
 
         })
