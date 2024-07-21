@@ -29,8 +29,10 @@ export class EyeComponent {
           //console.log(this.imageBase64);
           this.warningMessage = '';
         };
-      }else {
+      }else if(file && !this.typeList.includes(file.type)) {
         this.warningMessage = `the type "${file.type}" may not correct.`
+        this.imageBase64 = '';
+      }else {
         this.imageBase64 = '';
       }
       this.show = false;
